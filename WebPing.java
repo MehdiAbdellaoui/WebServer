@@ -6,11 +6,6 @@ import java.net.Socket;
 public class WebPing {
 	public static void main(String[] args) {
 
-		/*if (args.length != 2) {
-			System.err.println("Usage java WebPing <server host name> <server port number>");
-			return;
-		}*/
-
 		String httpServerHost = "0.0.0.0";
 		int httpServerPort = 80;
 
