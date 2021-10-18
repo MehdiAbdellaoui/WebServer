@@ -52,15 +52,12 @@ public class WebServer {
 				// stop reading once a blank line is hit. This
 				// blank line signals the end of the client HTTP
 				// headers.
-				String req ="";
-				req = in.readLine();
-				System.out.println("Request:" + req);
+				String req = "" ;
 				String str = ".";
 				
 				while (str != null && !str.equals("")) {
 					str = in.readLine();
-					//System.out.println(str);
-					//String aRecuperer = "Referer: ";
+					if(str != null) req += str ;
 				}
 				
 
