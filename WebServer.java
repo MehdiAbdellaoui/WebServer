@@ -8,6 +8,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import util.HttpServlet;
+
 /**
  * Example program from Chapter 1 Programming Spiders, Bots and Aggregators in
  * Java Copyright 2001 by Jeff Heaton
@@ -50,39 +52,27 @@ public class WebServer {
 				// stop reading once a blank line is hit. This
 				// blank line signals the end of the client HTTP
 				// headers.
+				String req ="";
+				req = in.readLine();
+				System.out.println("Request:" + req);
 				String str = ".";
+				
 				while (str != null && !str.equals("")) {
 					str = in.readLine();
-					System.out.println(str);
-					/*String aRecuperer = "Referer: ";
-					
-					if (str.length() >= aRecuperer.length()) System.out.println(str.substring(0, aRecuperer.length()));
-					if (str.length() >= aRecuperer.length() && str.substring(0, aRecuperer.length()).equals(aRecuperer)) {
-						System.out.println("IF");
-						
-						doGet(str.substring(aRecuperer.length()));
-					}*/
+					//System.out.println(str);
+					//String aRecuperer = "Referer: ";
 				}
+				
 
-				// Send the response
-				// Send the headers
-				out.println("HTTP/1.0 200 OK");
-				out.println("Content-Type: text/html");
-				out.println("Server: Bot");
-				// this blank line signals the end of the headers
-				out.println("");
-				// Send the HTML page
-				out.println("<H1>Welcome to the Ultra Mini-WebServer</H2>");
-				out.flush();
+				HttpServlet httpServlet = new HttpServlet();
+				
+				httpServlet.doMethod(req,remote);
+				
 				remote.close();
 			} catch (Exception e) {
 				System.out.println("Error: " + e);
 			}
 		}
-	}
-
-	private void doGet(String toGet) {
-			System.out.println(toGet);
 	}
 
 	/**
