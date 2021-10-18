@@ -53,10 +53,15 @@ public class WebServer {
 				String str = ".";
 				while (str != null && !str.equals("")) {
 					str = in.readLine();
-					String aRecuperer = "Referer: ";
-					if (str.substring(0, aRecuperer.length()).equals(aRecuperer)) {
+					System.out.println(str);
+					/*String aRecuperer = "Referer: ";
+					
+					if (str.length() >= aRecuperer.length()) System.out.println(str.substring(0, aRecuperer.length()));
+					if (str.length() >= aRecuperer.length() && str.substring(0, aRecuperer.length()).equals(aRecuperer)) {
+						System.out.println("IF");
+						
 						doGet(str.substring(aRecuperer.length()));
-					}
+					}*/
 				}
 
 				// Send the response
@@ -76,8 +81,8 @@ public class WebServer {
 		}
 	}
 
-	private void doGet(String substring) {
-
+	private void doGet(String toGet) {
+			System.out.println(toGet);
 	}
 
 	/**
