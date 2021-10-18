@@ -33,41 +33,44 @@ public class HttpServlet {
 	// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
 	// + sign on the left to edit the code.">
 	/**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+	 * Handles the HTTP <code>GET</code> method.
+	 *
+	 * @param request  servlet request
+	 * @param response servlet response
+	 * @throws ServletException if a servlet-specific error occurs
+	 * @throws IOException      if an I/O error occurs
+	 */
 	public void doMethod(String request, Socket response) throws IOException {
-		String[] parameters = request.split(" ");
-		String method = parameters[0];
-		String resource = parameters[1];
-		
-		switch(method) {
+		if (request != null) {
+			String[] parameters = request.split(" ");
+			String method = parameters[0];
+			String resource = parameters[1];
+
+			switch (method) {
 			case METHOD_GET:
 				doGet(resource, response);
 				break;
-			
+
 			case METHOD_POST:
+				doPost(resource, response);
 				break;
+			}
+
 		}
-		
 	}
 
 	private void doGet(String request, Socket response) throws IOException {
 		String reader = "";
-		try{
+		try {
 			File file = new File(request.substring(1));
-			BufferedReader br = new BufferedReader(new FileReader (file));
+			BufferedReader br = new BufferedReader(new FileReader(file));
 			String newLine = null;
 			while ((newLine = br.readLine()) != null) {
 				reader += newLine + System.lineSeparator();
 			}
 			br.close();
-		} catch(FileNotFoundException ex) {
-			reader = "<em>Erreur 404</em>" ;
+		} catch (FileNotFoundException ex) {
+			reader = "<em>Erreur 404</em>";
 		}
 		processRequest(reader, response);
 	}
@@ -81,10 +84,9 @@ public class HttpServlet {
 	 * @throws IOException      if an I/O error occurs
 	 */
 
-	/*
-	 * protected void doPost(HttpServletRequest request, HttpServletResponse
-	 * response) throws ServletException, IOException { processRequest(request,
-	 * response); }
-	 */
+	protected void doPost(String request, Socket response) throws IOException {
+		System.out.println("POST Request :" + request);
+		// processRequest(request, response);
+	}
 
 }

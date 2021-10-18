@@ -57,20 +57,18 @@ public class WebServer {
 				System.out.println("Request:" + req);
 				String str = ".";
 				
-				while (str != null && !str.equals("")) {
+				while (str != null ) { //&& !str.equals("")) {
 					str = in.readLine();
-					//System.out.println(str);
+					System.out.println("------->" + str);
 					//String aRecuperer = "Referer: ";
 				}
 				
-
 				HttpServlet httpServlet = new HttpServlet();
-				
 				httpServlet.doMethod(req,remote);
 				
 				remote.close();
 			} catch (Exception e) {
-				System.out.println("Error: " + e);
+				e.printStackTrace();
 			}
 		}
 	}
