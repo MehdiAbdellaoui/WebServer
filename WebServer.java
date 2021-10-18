@@ -30,7 +30,8 @@ public class WebServer {
     System.out.println("(press ctrl-c to exit)");
     try {
       // create the main server socket
-      s = new ServerSocket(3000);
+      s = new ServerSocket(80);
+      System.out.println(s.getInetAddress().getHostName());
     } catch (Exception e) {
       System.out.println("Error: " + e);
       return;
@@ -52,9 +53,10 @@ public class WebServer {
         // blank line signals the end of the client HTTP
         // headers.
         String str = ".";
-        while (str != null && !str.equals(""))
+        while (str != null && !str.equals("")) {
           str = in.readLine();
-
+          
+        }
         // Send the response
         // Send the headers
         out.println("HTTP/1.0 200 OK");
@@ -70,6 +72,10 @@ public class WebServer {
         System.out.println("Error: " + e);
       }
     }
+  }
+  
+  protected void doGet(String toGet) {
+	  
   }
 
   /**
