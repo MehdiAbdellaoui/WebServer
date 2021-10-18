@@ -2,6 +2,7 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,7 +25,7 @@ public class HttpServlet {
 			// this blank line signals the end of the headers
 			out.println("");
 			// Send the HTML page
-			// out.println("<H1>Welcome to the Ultra Mini-WebServer</H2>");
+			out.println(request);
 			out.flush();
 		}
 	}
@@ -56,12 +57,17 @@ public class HttpServlet {
 	}
 
 	private void doGet(String request, Socket response) throws IOException {
-		File file = new File(request.substring(1));
 		String reader = "";
-		BufferedReader br = new BufferedReader(new FileReader (file));
-		String newLine = null;
-		while ((newLine = br.readLine()) != null) {
-			reader += newLine + System.lineSeparator();
+		try{
+			File file = new File(request.substring(1));
+			BufferedReader br = new BufferedReader(new FileReader (file));
+			String newLine = null;
+			while ((newLine = br.readLine()) != null) {
+				reader += newLine + System.lineSeparator();
+			}
+			br.close();
+		} catch(FileNotFoundException ex) {
+			reader = "<em>Erreur 404</em>" ;
 		}
 		processRequest(reader, response);
 	}
