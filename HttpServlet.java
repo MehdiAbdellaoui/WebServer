@@ -260,7 +260,6 @@ public class HttpServlet {
 		
 		String extension = getExtension(path);
 		String header = null;
-		if(isExtensionOf(extension, TEXT_EXTENSIONS)) {
 			header = getHeader(200, "text", extension);
 			File file = new File(path);
 			if (!file.exists()) {
@@ -269,44 +268,7 @@ public class HttpServlet {
 			}
 			else file.delete();
 			
-		}else if (isExtensionOf(extension, IMAGE_EXTENSIONS)) {
-			header = getHeader(200, "image", extension);
-			File file = new File(path);
-			if (!file.exists()) {
-				doError(404, response);
-				success = false;
-			}
-			else file.delete();
-			
-			// reader += "<img src=\"" + path + "\" alt=\"image chargee\" />" +
-		} else if (isExtensionOf(extension, VIDEO_EXTENSIONS)) {
-			header = getHeader(200, "video", extension);
-			File file = new File(path);
-			if (!file.exists()) {
-				doError(404, response);
-				success = false;
-			}
-			else file.delete();
-			
-		} else if (isExtensionOf(extension, AUDIO_EXTENSIONS)) {
-			header = getHeader(200, "audio", extension);
-			File file = new File(path);
-			if (!file.exists()) {
-				doError(404, response);
-				success = false;
-			}
-			else file.delete();
-			
-		} else if (isExtensionOf(extension, APPLICATION_EXTENSIONS)) {
-			header = getHeader(200, "application", extension);
-			File file = new File(path);
-			if (!file.exists()) {
-				doError(404, response);
-				success = false;
-			}
-			else file.delete();
-			
-		} else {
+			 else {
 			doError(422, response);
 			success = false;
 		}
