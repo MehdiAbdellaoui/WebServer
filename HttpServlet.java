@@ -96,6 +96,7 @@ public class HttpServlet {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		}
 
 	private void doGet(String request, Socket response) throws IOException {
 		int positionFirstSpace = request.indexOf(' ') ;
@@ -182,7 +183,7 @@ public class HttpServlet {
 	 * @throws IOException      if an I/O error occurs
 	 */
 
-	/*protected void doPost(String request, Socket response) throws IOException {
+	protected void doPost(String request, Socket response) throws IOException {
 		System.out.println("POST Request :" + request);
 		//System.out.println(request.indexOf("Content-Disposition:"));
 		String tmpStr = request.substring(request.indexOf("name="));
@@ -196,6 +197,6 @@ public class HttpServlet {
 			//System.out.println(s.substring(0,s.indexOf("-")));
 		}
 		// processRequest(request, response);
-	}*/
+	}
 
 }
