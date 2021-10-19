@@ -80,7 +80,6 @@ public class WebServer {
 								System.out.println("-->" + str);
 							}
 						}
-						System.out.println("After while WebServer");
 					}
 				}
 				//System.out.println("Request = " + req);
