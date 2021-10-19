@@ -61,10 +61,10 @@ public class WebServer {
 				String method = "";
 				if (header != null) {
 					method = header.substring(0, header.indexOf(' '));
-
+					//req += System.lineSeparator();
 					System.out.println("Method :" + method);
 
-					if (method.equals("GET")) {
+					if (method.equals("GET") || method.equals("DELETE")) {
 						while (str != null && !str.equals("")) {
 							str = in.readLine();
 							if (str != null)

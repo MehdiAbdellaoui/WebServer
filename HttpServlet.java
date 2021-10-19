@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.util.Base64;
 
 public class HttpServlet {
 
@@ -69,6 +70,7 @@ public class HttpServlet {
 		int positionFirstSpace = request.indexOf(' ');
 		String method = request.substring(0, positionFirstSpace);
 		String resource = request.substring(positionFirstSpace + 1);
+		System.out.println("Resource = " + resource);
 		// System.out.println("method to do --> " + method) ;
 		switch (method) {
 		case METHOD_GET:
@@ -239,39 +241,78 @@ public class HttpServlet {
 	private void doDelete(String request, Socket response) throws IOException {
 		int positionFirstSpace = request.indexOf(' ');
 		String path = request.substring(1, positionFirstSpace);
+		
+		String tmp = request.split(" ")[3];
+		String authentification = tmp.split(System.lineSeparator())[0];
+		//System.out.println("Auth = " + authentification);
+		byte[] decodedBytes = Base64.getDecoder().decode(authentification);
+		String decodedString = new String(decodedBytes);
+		//System.out.println("Decoded String = " + decodedString);
+		
+		boolean success = true;
+		
+		String[] credentials = decodedString.split(":");
+		if(!credentials[0].equals("mehdi") && !credentials[1].equals("mehdi")) {
+			doError(405,response);
+			success = false;
+			return;
+		}
+		
 		String extension = getExtension(path);
 		String header = null;
-		String body = "{\"success\":";
 		if(isExtensionOf(extension, TEXT_EXTENSIONS)) {
 			header = getHeader(200, "text", extension);
 			File file = new File(path);
-			file.delete();
-			body += "\"true\"";
+			if (!file.exists()) {
+				doError(404, response);
+				success = false;
+			}
+			else file.delete();
+			
 		}else if (isExtensionOf(extension, IMAGE_EXTENSIONS)) {
 			header = getHeader(200, "image", extension);
 			File file = new File(path);
-			file.delete();
-			body += "\"true\"";
+			if (!file.exists()) {
+				doError(404, response);
+				success = false;
+			}
+			else file.delete();
+			
 			// reader += "<img src=\"" + path + "\" alt=\"image chargee\" />" +
 		} else if (isExtensionOf(extension, VIDEO_EXTENSIONS)) {
 			header = getHeader(200, "video", extension);
 			File file = new File(path);
-			file.delete();
-			body += "\"true\"";
+			if (!file.exists()) {
+				doError(404, response);
+				success = false;
+			}
+			else file.delete();
+			
 		} else if (isExtensionOf(extension, AUDIO_EXTENSIONS)) {
 			header = getHeader(200, "audio", extension);
 			File file = new File(path);
-			file.delete();
-			body += "\"true\"";
+			if (!file.exists()) {
+				doError(404, response);
+				success = false;
+			}
+			else file.delete();
+			
 		} else if (isExtensionOf(extension, APPLICATION_EXTENSIONS)) {
 			header = getHeader(200, "application", extension);
 			File file = new File(path);
-			file.delete();
-			body += "\"true\"";
+			if (!file.exists()) {
+				doError(404, response);
+				success = false;
+			}
+			else file.delete();
+			
 		} else {
 			doError(422, response);
+			success = false;
 		}
-		processRequest(header,body, response);
+		String body = "{\"success\":" + "\""+ success +"\"}";
+		if(success)
+			processRequest(header,body,response);
 	}
 	
 	private String getHeader(int nb, String type, String extension) {
