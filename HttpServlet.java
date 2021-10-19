@@ -194,12 +194,12 @@ public class HttpServlet {
 
 	protected void doPost(String request, Socket response) throws IOException {
 
-		// Récupérer la valeur de boundary
+		// Rï¿½cupï¿½rer la valeur de boundary
 		int boundaryIndex = request.indexOf("boundary=") + "boundary=--------------------------".length();
 		String boundaryValue = request.substring(boundaryIndex, boundaryIndex + 24);
 		// System.out.println(boundaryValue);
 
-		// Parsing de la requête
+		// Parsing de la requï¿½te
 		String[] splitBoundary = request.substring(boundaryIndex + 24).split(boundaryValue); // 24 x '-'
 
 		int i = 1;
@@ -239,7 +239,7 @@ public class HttpServlet {
 		} else {
 			doError(422, response);
 		}
-		processRequest(header, "", response);  //body est toujours vide dans une requête HEAD
+		processRequest(header, "", response);  //body est toujours vide dans une requï¿½te HEAD
 	}
 	
 	private void doDelete(String request, Socket response) throws IOException {
