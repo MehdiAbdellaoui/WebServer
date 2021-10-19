@@ -27,6 +27,8 @@ public class HttpServlet {
 	private static final String[] APPLICATION_EXTENSIONS = { "java-archive", "EDI-X12", "EDIFACT", "javascript",
 			"octet-stream", "ogg", "pdf", "xhtml+xml", "x-shockwave-flash", "json", "ld+json", "xml", "zip",
 			"x-www-form-urlencoded " };
+	
+	private boolean success ;
 
 	protected void processRequest(String header, Object body, Socket response) throws IOException {
 		if (body instanceof String) {
@@ -72,6 +74,7 @@ public class HttpServlet {
 		String resource = request.substring(positionFirstSpace + 1);
 		System.out.println("Resource = " + resource);
 		// System.out.println("method to do --> " + method) ;
+		success = true;
 		switch (method) {
 		case METHOD_GET:
 			doGet(resource, response);
@@ -128,6 +131,7 @@ public class HttpServlet {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		success = false;
 	}
 
 	private void doGet(String request, Socket response) throws IOException {
@@ -249,8 +253,6 @@ public class HttpServlet {
 		String decodedString = new String(decodedBytes);
 		//System.out.println("Decoded String = " + decodedString);
 		
-		boolean success = true;
-		
 		String[] credentials = decodedString.split(":");
 		if(!credentials[0].equals("mehdi") && !credentials[1].equals("mehdi")) {
 			doError(405,response);
@@ -258,59 +260,16 @@ public class HttpServlet {
 			return;
 		}
 		
-		String extension = getExtension(path);
-		String header = null;
-		if(isExtensionOf(extension, TEXT_EXTENSIONS)) {
-			header = getHeader(200, "text", extension);
-			File file = new File(path);
-			if (!file.exists()) {
-				doError(404, response);
-				success = false;
-			}
-			else file.delete();
-			
-		}else if (isExtensionOf(extension, IMAGE_EXTENSIONS)) {
-			header = getHeader(200, "image", extension);
-			File file = new File(path);
-			if (!file.exists()) {
-				doError(404, response);
-				success = false;
-			}
-			else file.delete();
-			
-			// reader += "<img src=\"" + path + "\" alt=\"image chargee\" />" +
-		} else if (isExtensionOf(extension, VIDEO_EXTENSIONS)) {
-			header = getHeader(200, "video", extension);
-			File file = new File(path);
-			if (!file.exists()) {
-				doError(404, response);
-				success = false;
-			}
-			else file.delete();
-			
-		} else if (isExtensionOf(extension, AUDIO_EXTENSIONS)) {
-			header = getHeader(200, "audio", extension);
-			File file = new File(path);
-			if (!file.exists()) {
-				doError(404, response);
-				success = false;
-			}
-			else file.delete();
-			
-		} else if (isExtensionOf(extension, APPLICATION_EXTENSIONS)) {
-			header = getHeader(200, "application", extension);
-			File file = new File(path);
-			if (!file.exists()) {
-				doError(404, response);
-				success = false;
-			}
-			else file.delete();
-			
-		} else {
-			doError(422, response);
-			success = false;
+		String header = getHeader(200, "application", "json");
+		
+		File file = new File(path);
+		if (!file.exists()) {
+			doError(404, response);
 		}
+		else file.delete();
+		
 		String body = "{\"success\":" + "\""+ success +"\"}";
+		
 		if(success)
 			processRequest(header,body,response);
 	}
