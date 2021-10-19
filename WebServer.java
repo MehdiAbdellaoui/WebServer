@@ -55,13 +55,15 @@ public class WebServer {
 				String req = "" ;
 				String str = ".";
 				
-				while (str != null ) { //&& !str.equals("")) {
+				while (str != null && !str.equals("")) {
 					str = in.readLine();
-					if(str != null) req += str ;
+					if(str != null) req += str + System.lineSeparator() ;
 				}
 				
-				HttpServlet httpServlet = new HttpServlet();
-				httpServlet.doMethod(req,remote);
+				if(req != null) {
+					HttpServlet httpServlet = new HttpServlet();
+					httpServlet.doMethod(req,remote);
+				}
 				
 				remote.close();
 			} catch (Exception e) {

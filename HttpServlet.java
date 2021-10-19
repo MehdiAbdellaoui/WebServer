@@ -6,30 +6,46 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 
 public class HttpServlet {
 
 	private final static String METHOD_GET = "GET";
 	private final static String METHOD_POST = "POST";
-	private final static String[] WEB_EXTENSIONS = {"html"} ;
-	private static final String[] IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "gif"};
+	private final static String[] TEXT_EXTENSIONS = {"html", "css", "csv", "javascript", "plain", "xml"} ;
+	private static final String[] IMAGE_EXTENSIONS = {"jpeg", "png", "gif", "tiff", "vnd.microsoft.icon", "x-icon", "vnd.djvu", "svg+xml"};
+	private static final String[] VIDEO_EXTENSIONS = {"mp4", "mpeg", "quicktime", "webm", "x-ms-wmv", "x-msvideo", "x-flv"};
+	private static final String[] AUDIO_EXTENSIONS = {"mpeg", "x-ms-wma", "vnd.rn-realaudio", "x-wav"};
 
-	protected void processRequest(String request, Socket response) throws IOException {
-		try (PrintWriter out = new PrintWriter(response.getOutputStream())) {
-			/* TODO output your page here. You may use following sample code. */
+	protected void processRequest(String header, Object body, Socket response) throws IOException {
+		if(body instanceof String) {
+			processRequest(header, (String)body, response) ;
+		} else if (body instanceof byte[]) {
+			processRequest(header, (byte[])body, response) ;
+		}
+	}
 
-			// Send the response
-			// Send the headers
-			out.println("HTTP/1.0 200 OK");
-			out.println("Content-Type: text/html");
-			out.println("Server: Bot");
-			// this blank line signals the end of the headers
+	protected void processRequest(String header, String body, Socket response) throws IOException {
+		try(PrintWriter out = new PrintWriter(response.getOutputStream())) {
+			out.println(header);
 			out.println("");
-			// Send the HTML page
-			out.println(request);
+			out.println(body);
 			out.flush();
+		}
+	}
+
+	protected void processRequest(String header, byte[] body, Socket response) throws IOException {
+		try (PrintWriter outHead = new PrintWriter(response.getOutputStream());
+			OutputStream outBody = response.getOutputStream()) {
+			outHead.println(header) ;
+			outHead.println("");
+			outBody.write(body);
+			outHead.flush() ;
+			outBody.flush();
 		}
 	}
 
@@ -47,7 +63,7 @@ public class HttpServlet {
 		int positionFirstSpace = request.indexOf(' ') ;
 		String method = request.substring(0, positionFirstSpace);
 		String resource = request.substring(positionFirstSpace + 1);
-		
+		//System.out.println("method to do --> " + method) ;
 		switch(method) {
 			case METHOD_GET:
 				doGet(resource, response);
@@ -56,8 +72,29 @@ public class HttpServlet {
 			case METHOD_POST:
 				doPost(resource, response);
 				break;
-			}
-
+			default:
+				doError(501, response);
+		}
+	}
+	
+	private void doError(int nbError, Socket response) {
+		String header = "HTTP/1.0 " + nbError + " NO" ;
+		String body = "Error " + nbError + " --> " ;
+		switch(nbError) {
+			case 404 :
+				body += "File not found error" ;
+				break ;
+			case 501 :
+				body += "Unimplemented method" ;
+				break ;
+			case 422 :
+				body += "Unprocessable entity" ;
+				break ;
+		}
+		try {
+			processRequest(header, body, response) ;
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -68,30 +105,56 @@ public class HttpServlet {
 	private void doGet(String request, Socket response) throws IOException {
 		int positionFirstSpace = request.indexOf(' ') ;
 		String path = request.substring(1, positionFirstSpace);
-		String reader = "";
-		try{
-			File file = new File(path);
-			BufferedReader br = new BufferedReader(new FileReader (file));
-			
-			String extension = getExtension(path) ;
-			if(isExtensionOf(extension, WEB_EXTENSIONS)) {
+		//System.out.println("in get with adress --> " + path) ;
+		String header = null ;
+		Object body = null ;
+		
+		String extension = getExtension(path) ;
+		try {
+			if(isExtensionOf(extension, TEXT_EXTENSIONS)) {
+				File file = new File(path);
+				BufferedReader br = new BufferedReader(new FileReader (file));
+				header = getHeader(200, "text", extension) ;
 				String newLine = null;
+				body = new String("") ;
 				while ((newLine = br.readLine()) != null) {
-					reader += newLine + System.lineSeparator();
+					body += newLine + System.lineSeparator();
 				}
+				br.close();
 			} else if(isExtensionOf(extension, IMAGE_EXTENSIONS)) {
-				reader += "<img src=\"" + (new java.io.File(".").getCanonicalPath()) + '/' + path + "\" alt=\"image chargee\" />" + System.lineSeparator() ;
-				System.out.println("---> " + reader);
+				header = getHeader(200, "image", extension) ;
+				File file = new File(path) ;
+				body = Files.readAllBytes(file.toPath()) ;
+	
+				//reader += "<img src=\"" + path + "\" alt=\"image chargee\" />" + System.lineSeparator() ;
+			} else if(isExtensionOf(extension, VIDEO_EXTENSIONS)) {
+				header = getHeader(200, "video", extension) ;
+				File file = new File(path) ;
+				body = Files.readAllBytes(file.toPath()) ;
+	
+				//reader += "<img src=\"" + path + "\" alt=\"image chargee\" />" + System.lineSeparator() ;
+			} else if(isExtensionOf(extension, AUDIO_EXTENSIONS)) {
+				header = getHeader(200, "audio", extension) ;
+				File file = new File(path) ;
+				body = Files.readAllBytes(file.toPath()) ;
+	
+				//reader += "<img src=\"" + path + "\" alt=\"image chargee\" />" + System.lineSeparator() ;
 			} else {
-				reader = "<em>Erreur 422</em> unprocessable entity" ;
+				doError(422, response);;
 			}
-
-			br.close();
-			
-		} catch(FileNotFoundException ex) {
-			reader = "<em>Erreur 404</em> file not found at path -> " + path ;
+		} catch (NoSuchFileException | FileNotFoundException ex) {
+			ex.printStackTrace() ;
+			doError(404, response) ;
 		}
-		processRequest(reader, response);
+		
+		processRequest(header, body, response) ;
+	}
+
+	private String getHeader(int nb, String type, String extension) {
+		String header = "HTTP/1.0 " + nb + " OK" + System.lineSeparator() ;
+		header += "Content-Type: " + type + "/" + extension + System.lineSeparator() ;
+		header += "Server: Bot" + System.lineSeparator() ;
+		return header ;
 	}
 
 	private boolean isExtensionOf(String extension, String[] webExtensions) {
@@ -124,9 +187,9 @@ public class HttpServlet {
 	 * @throws IOException      if an I/O error occurs
 	 */
 
-	protected void doPost(String request, Socket response) throws IOException {
+	/*protected void doPost(String request, Socket response) throws IOException {
 		System.out.println("POST Request :" + request);
 		// processRequest(request, response);
-	}
+	}*/
 
 }
