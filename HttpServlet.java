@@ -20,6 +20,8 @@ public class HttpServlet {
 	private static final String[] IMAGE_EXTENSIONS = {"jpeg", "png", "gif", "tiff", "vnd.microsoft.icon", "x-icon", "vnd.djvu", "svg+xml"};
 	private static final String[] VIDEO_EXTENSIONS = {"mp4", "mpeg", "quicktime", "webm", "x-ms-wmv", "x-msvideo", "x-flv"};
 	private static final String[] AUDIO_EXTENSIONS = {"mpeg", "x-ms-wma", "vnd.rn-realaudio", "x-wav"};
+	private static final String[] APPLICATION_EXTENSIONS = {"java-archive", "EDI-X12", "EDIFACT", "javascript", "octet-stream", "ogg", "pdf",
+			"xhtml+xml", "x-shockwave-flash", "json", "ld+json", "xml", "zip", "x-www-form-urlencoded "};
 
 	protected void processRequest(String header, Object body, Socket response) throws IOException {
 		if(body instanceof String) {
@@ -127,15 +129,15 @@ public class HttpServlet {
 				header = getHeader(200, "video", extension) ;
 				File file = new File(path) ;
 				body = Files.readAllBytes(file.toPath()) ;
-	
-				//reader += "<img src=\"" + path + "\" alt=\"image chargee\" />" + System.lineSeparator() ;
 			} else if(isExtensionOf(extension, AUDIO_EXTENSIONS)) {
 				header = getHeader(200, "audio", extension) ;
 				File file = new File(path) ;
 				body = Files.readAllBytes(file.toPath()) ;
-	
-				//reader += "<img src=\"" + path + "\" alt=\"image chargee\" />" + System.lineSeparator() ;
-			} else {
+			} else if(isExtensionOf(extension, APPLICATION_EXTENSIONS)) {
+				header = getHeader(200, "application", extension) ;
+				File file = new File(path) ;
+				body = Files.readAllBytes(file.toPath()) ;
+			}  else {
 				doError(422, response);;
 			}
 		} catch (NoSuchFileException | FileNotFoundException ex) {
@@ -151,6 +153,17 @@ public class HttpServlet {
 		header += "Content-Type: " + type + "/" + extension + System.lineSeparator() ;
 		header += "Server: Bot" + System.lineSeparator() ;
 		return header ;
+	}
+	
+	private String getPostHeader(int nb) {
+		String header = "HTTP/1.1 " + nb + " Created" + System.lineSeparator();
+		return header;
+	}
+	private String getPostHeader(int nb, String resourceETag, String redirectionPath) {
+		String header = "HTTP/1.1 " + nb + " Created" + System.lineSeparator();
+		header += "ETag: " + "\"" + resourceETag+ "\"" + System.lineSeparator();
+		header += "Location: " + redirectionPath;
+		return header;
 	}
 
 	private boolean isExtensionOf(String extension, String[] webExtensions) {
@@ -202,7 +215,11 @@ public class HttpServlet {
 			System.out.println(parameterName + " = " + splitLine[3]);
 			i++;
 		}
-		// processRequest(request, response);
+		System.out.println("After while");
+		String header = getPostHeader(201,"tag","/src/web/pageWebTest.html");
+		System.out.println(header);
+		String body = "";
+		processRequest(header,body, response);
 	}
 
 }

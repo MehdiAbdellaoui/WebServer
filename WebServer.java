@@ -73,11 +73,14 @@ public class WebServer {
 					}
 
 					if (method.equals("POST")) {
-						while (str != null) {
+						while (str != null && (str.length() < 2 || !str.substring(str.length()-2).equals(("--")))) {
 							str = in.readLine();
-							if (str != null)
+							if (str != null) {
 								req += str + System.lineSeparator();
+								System.out.println("-->" + str);
+							}
 						}
+						System.out.println("After while WebServer");
 					}
 				}
 				//System.out.println("Request = " + req);
