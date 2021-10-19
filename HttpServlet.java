@@ -44,26 +44,27 @@ public class HttpServlet {
 	 * @throws IOException      if an I/O error occurs
 	 */
 	public void doMethod(String request, Socket response) throws IOException {
-		int positionFirstSpace = request.indexOf(' ') ;
-		String method = request.substring(0, positionFirstSpace);
-		String resource = request.substring(positionFirstSpace + 1);
+		if(request != null) {
 		
-		switch(method) {
-			case METHOD_GET:
-				doGet(resource, response);
-				break;
-
-			case METHOD_POST:
-				doPost(resource, response);
-				break;
+			int positionFirstSpace = request.indexOf(" ");
+			String method ="";
+			String resource = "";
+			if(positionFirstSpace > 0) {
+				method = request.substring(0, positionFirstSpace);
+				resource = request.substring(positionFirstSpace + 1);
 			}
+			switch(method) {
+				case METHOD_GET:
+					doGet(resource, response);
+					break;
 
+				case METHOD_POST:
+					doPost(resource, response);
+					break;
+					
+				}
+			}
 		}
-	}
-
-	private void doPost(String resource, Socket response) {
-		System.out.println(resource) ;
-	}
 
 	private void doGet(String request, Socket response) throws IOException {
 		int positionFirstSpace = request.indexOf(' ') ;
@@ -126,6 +127,17 @@ public class HttpServlet {
 
 	protected void doPost(String request, Socket response) throws IOException {
 		System.out.println("POST Request :" + request);
+		//System.out.println(request.indexOf("Content-Disposition:"));
+		String tmpStr = request.substring(request.indexOf("name="));
+		
+		System.out.println(tmpStr);
+		
+		String[] parameters = tmpStr.split("name");
+
+		for (String s : parameters) {
+			System.out.println(s);
+			//System.out.println(s.substring(0,s.indexOf("-")));
+		}
 		// processRequest(request, response);
 	}
 
