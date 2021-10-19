@@ -52,19 +52,41 @@ public class WebServer {
 				// stop reading once a blank line is hit. This
 				// blank line signals the end of the client HTTP
 				// headers.
-				String req = "" ;
+
 				String str = ".";
-				
-				while (str != null && !str.equals("")) {
-					str = in.readLine();
-					if(str != null) req += str + System.lineSeparator() ;
+
+				// Séparation en fonction du type de la requête(GET ou POST)
+				String header = in.readLine();
+				String req = header;
+				String method = "";
+				if (header != null) {
+					method = header.substring(0, header.indexOf(' '));
+
+					System.out.println("Method :" + method);
+
+					if (method.equals("GET")) {
+						while (str != null && !str.equals("")) {
+							str = in.readLine();
+							if (str != null)
+								req += str + System.lineSeparator();
+						}
+					}
+
+					if (method.equals("POST")) {
+						while (str != null) {
+							str = in.readLine();
+							if (str != null)
+								req += str + System.lineSeparator();
+						}
+					}
 				}
-				
-				if(req != null) {
+				//System.out.println("Request = " + req);
+
+				if (req != null && !req.equals("")) {
 					HttpServlet httpServlet = new HttpServlet();
-					httpServlet.doMethod(req,remote);
+					httpServlet.doMethod(req, remote);
 				}
-				
+
 				remote.close();
 			} catch (Exception e) {
 				e.printStackTrace();

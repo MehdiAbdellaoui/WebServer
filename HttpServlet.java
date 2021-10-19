@@ -184,17 +184,23 @@ public class HttpServlet {
 	 */
 
 	protected void doPost(String request, Socket response) throws IOException {
-		System.out.println("POST Request :" + request);
-		//System.out.println(request.indexOf("Content-Disposition:"));
-		String tmpStr = request.substring(request.indexOf("name="));
 		
-		System.out.println(tmpStr);
+		//Récupérer la valeur de boundary
+		int boundaryIndex = request.indexOf("boundary=") + "boundary=--------------------------".length();
+		String boundaryValue = request.substring(boundaryIndex,boundaryIndex + 24);
+		//System.out.println(boundaryValue);
 		
-		String[] parameters = tmpStr.split("name");
-
-		for (String s : parameters) {
-			System.out.println(s);
-			//System.out.println(s.substring(0,s.indexOf("-")));
+		//Parsing de la requête 
+		String[] splitBoundary = request.substring(boundaryIndex + 24).split(boundaryValue); //24 x '-' 
+		
+		int i = 1;
+		while (i < splitBoundary.length-1 )  {
+			if(splitBoundary[i].startsWith("--")) break;
+			String[] splitLine = splitBoundary[i].split(System.lineSeparator());
+			String parameter = splitLine[1].split("; ")[1];
+			String parameterName = parameter.substring(6, parameter.length() -1 );
+			System.out.println(parameterName + " = " + splitLine[3]);
+			i++;
 		}
 		// processRequest(request, response);
 	}
